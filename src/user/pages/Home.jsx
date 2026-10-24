@@ -1,9 +1,49 @@
 import React from 'react'
 import Header from '../components/Header'
 import { FaSearch } from 'react-icons/fa'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { getHomeBooksAPI } from '../../services/allAPI'
+import { useEffect } from 'react'
+import { useState } from 'react'
+import { useContext } from 'react'
+import {searchContext} from '../../contextAPI/ShareContext'
+import { ToastContainer, toast } from 'react-toastify';
+
 
 function Home() {
+
+  const navigate = useNavigate()
+  const  {searchKey,setSearchKey} = useContext(searchContext)
+  const [homeBooks,setHomeBooks] = useState([])
+
+  console.log(searchKey);
+  
+  useEffect(()=>{
+    getHomeBooks()
+  },[])
+
+  const getHomeBooks = async()=>{
+    const result = await getHomeBooksAPI()
+    if(result.status==200){
+      setHomeBooks(result.data)
+    }
+  }
+
+  const handleSearch =()=>{
+    if(!searchKey){
+      toast.warning("Please Input a Book Title")
+    }else if(!sessionStorage.getItem("token")){
+      toast.warning("Please Login To Explore More...!!!")
+      setTimeout(()=>{
+        navigate('/login')
+      },2000)
+    }else if(searchKey && sessionStorage.getItem('token')){
+      navigate('/books')
+    }else{
+      toast.error("Something Went Wrong!!!!")
+    }
+  }
+
   return (
     <>
     <Header/>
@@ -13,8 +53,8 @@ function Home() {
           <h1 className='text-6xl font-bold'>Wonderful Books</h1>
           <p>Gift your family and friends a book</p>
           <div>
-            <input type="text" placeholder='Search A Book' className='bg-white p-2 rounded-3xl w-100 text-black'/>
-            <FaSearch className='text-gray-500 cursor-pointer' style={{marginTop:'-28px',marginLeft:'360px'}} />
+            <input onChange={(e)=>setSearchKey(e.target.value)} type="text" placeholder='Search A Book' className='bg-white p-2 rounded-3xl w-100 text-black'/>
+            <FaSearch onClick={handleSearch} className='text-gray-500 cursor-pointer' style={{marginTop:'-28px',marginLeft:'360px'}} />
           </div>
         </div>
       </div>
@@ -24,14 +64,21 @@ function Home() {
         <h1 className='text-3xl my-2'>Explore Our Latest Collection</h1>
         <div className='md:grid grid-cols-4 md:my-0'>
           {/* duplicating Card */}
-          <div className='shadow rounded p-3 m-4 md:my-0'>
-            <img width={'100%'} height={'300px'} src="https://blog-cdn.reedsy.com/directories/gallery/473/large_18701508f01e85184136629bb2479cfa.jpg" alt="" />
-            <div className='flex flex-col justify-center items-center mt-4'>
-              <h2 className='text-blue-600 font-bold text-xl'>Author</h2>
-              <h3 className='text-lg'>TiTle</h3>
-              <p className='font-bold text-red-500'>Price</p>
-            </div>
-          </div>
+          {
+            homeBooks.length>0 ?
+            homeBooks.map(book=>(
+              <div key={book?._id} className='shadow rounded p-3 m-4 md:my-0'>
+                <img width={'100%'} height={'300px'} src={book?.imageURL} alt="" />
+                <div className='flex flex-col justify-center items-center mt-4'>
+                  <h2 className='text-blue-600 font-bold text-xl'>{book?.author}</h2>
+                  <h3 className='text-lg'>{book?.title}</h3>
+                  <p className='font-bold text-red-500'>₹ {book?.discountPrice}</p>
+                </div>
+              </div>
+            ))
+            :
+            <p className='font-bold text-center my-3'>Loading....</p>
+          }
         </div>
         {/* button */}
         <div className='text-center my-10'>
@@ -66,6 +113,8 @@ function Home() {
           <p className='text-justify'>This bookstore has completely changed the way I discover new books. The recommendations are always spot-on, and the delivery is super fast. I love the clean interface and the huge collection! The user experience is amazing! Easy navigation, great deals, and beautifully organized categories. I appreciate how quickly customer support responds too.</p>
         </div>
       </section>
+         {/* toast container */}
+        <ToastContainer position='top-center' theme='colored' autoClose={3000} />
     </>
   )
 }

@@ -5,26 +5,45 @@ import Edit from '../components/Edit'
 import UploadBook from '../components/UploadBook'
 import BookStatus from '../components/BookStatus'
 import Purchase from '../components/Purchase'
+import { useEffect } from 'react'
+import axiosInstance from '../../api/axiosInstance'
+
 
 function Profile() {
   const [currentTab,setCurrentTab] = useState(1)
+  const [username, setUsername] = useState("")
+  const [dp, setDp] = useState("")
+  const [bio, setBio] = useState("")
+
+  useEffect(()=>{
+      if(sessionStorage.getItem("token") && sessionStorage.getItem("user")){
+        const user = JSON.parse( sessionStorage.getItem("user"))
+        setDp(user?.picture)
+        setUsername(user?.username)
+        setBio(user?.bio)
+      }
+    },[])
+    console.log(dp);
+    
+   
+
   return (
     <>
       <Header/>
       <div style={{height:'200px'}} className='bg-black'></div>
       <div style={{width:'230px',height:'230px',borderRadius:'50%', marginTop:"-130px", marginLeft:'70px'}} className='bg-white p-3'>
-        <img style={{width:'200px', height:'200px', borderRadius:'50%'}} src="https://static.vecteezy.com/system/resources/thumbnails/048/334/475/small/a-person-icon-on-a-transparent-background-png.png" alt= "user" />
+        <img style={{width:'200px', height:'200px', borderRadius:'50%'}} src= {dp=="" ? "https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png" : dp.startsWith("https://lh3.googleusercontent.com/")?dp : `${axiosInstance.defaults.baseURL}/uploads/${dp}`} alt= "user" />
       </div>
       <div className='md:flex justify-between px-5'>
         <div className='flex items-center'>
-          <h1 className='text-2xl font-black md:text-3xl'>UserName</h1>
+          <h1 className='text-2xl font-black md:text-3xl'>{username}</h1>
           <FaCheckCircle className='text-blue-700 ms-3' />
         </div>
         <div>
           <Edit/>
         </div>
       </div>
-      <p className='text-xl font-bold px-20 mt-5'> Bio</p>
+      <p className='text-xl font-bold px-20 mt-5'> {bio}</p>
       <p className='text-justify md:px-20 px-5 my-5'>user profile management dashboard is a centralized digital interface that lets administrators or individual users view, edit, and control account details, security settings, and role permissions in one place.Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam quam a consequuntur ullam eveniet saepe amet fugiat rerum eaque ipsam, reiciendis excepturi minima corrupti eos exercitationem, nemo praesentium aut tempore?Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam quam a consequuntur ullam eveniet saepe amet fugiat rerum eaque ipsam, reiciendis excepturi minima corrupti eos exercitationem, nemo praesentium aut tempore?</p>
       <div className='md:px-40'>
         {/* tabs */}

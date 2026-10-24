@@ -5,6 +5,20 @@ const axiosInstance = axios.create({
     timeout:5000
 })
 
+// request interceptor : Hnadling Token append to Headers
+axiosInstance.interceptors.request.use(
+    (config)=>{
+        const token = sessionStorage.getItem("token")
+        if(token){
+            config.headers.Authorization = `Bearer ${token}`
+        }
+        return config
+    },
+    (error)=>{
+        return Promise.reject(error)
+    }
+)
+
 // response interceptors : Handling Global error
 axiosInstance.interceptors.response.use(
     (response)=>{
