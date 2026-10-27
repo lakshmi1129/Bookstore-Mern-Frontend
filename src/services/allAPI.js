@@ -55,3 +55,20 @@ export const deleteUserBookAPI = async (bookId)=>{
 export const viewBookAPI = async (id)=>{
     return await apiService("GET",`/view-book/${id}`,{})
 }
+
+
+// buy book
+export const buyBookAPI = async (id)=>{
+    return await apiService("PUT",`/books/${id}/buy`,{})
+}
+
+
+// edit uadminser api : admin settings component when clicking on edit button
+export const adminUpdateAPI = async (adminId,adminData)=>{
+    return await apiService("PUT",`/admin/${adminId}`,adminData)
+}
+
+// get all users api : admin resources component 
+export const userListAPI = async ()=>{
+    return await apiService("GET",`/user-list`,{})
+}

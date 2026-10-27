@@ -2,9 +2,10 @@ import React, { useState } from 'react'
 import Header from '../components/Header'
 import { FaBackward, FaCamera, FaEye } from 'react-icons/fa'
 import { Link, useParams } from 'react-router-dom'
-import { viewBookAPI } from '../../services/allAPI'
+import { buyBookAPI, viewBookAPI } from '../../services/allAPI'
 import { useEffect } from 'react'
 import axiosInstance from '../../api/axiosInstance'
+import {loadStripe} from '@stripe/stripe-js';
 
 function View() {
   const [modal,setModal]= useState(false)
@@ -20,6 +21,17 @@ function View() {
   const getBookDetails = async()=>{
     const result = await viewBookAPI(id)
     setBookDetails(result.data)
+  }
+
+  const makePayment = async ()=>{
+    // console.log(import.meta.env.VITE_STRIPE_PK);
+    // load stripe
+     const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PK);
+     console.log(stripe);
+    //  api call
+    const result = await buyBookAPI(id)    
+    // console.log(result.data.chekOutURL);   
+     window.location.href = result.data.chekOutURL   
   }
   
   return (
@@ -52,7 +64,7 @@ function View() {
                 </div>
                 <div className='flex justify-end'>
                   <Link to={'/books'} className='bg-blue-900 text-white p-2 font-black flex items-center'><FaBackward className='me-2'/> Back</Link>
-                  <button className='bg-green-900 text-white font-black ms-5 p-2'>Buy ₹ {bookDetails?.discountPrice}</button>
+                  <button onClick={makePayment} className='bg-green-900 text-white font-black ms-5 p-2'>Buy ₹ {bookDetails?.discountPrice}</button>
                 </div>
               </div>
           </div>

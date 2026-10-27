@@ -61,7 +61,7 @@ function Edit() {
         }else if(passwordMatch){
             const reqBody = new FormData()
             for(let key in userDetails){
-                if(key != picture){
+                if(key != "picture"){
                     reqBody.append(key,userDetails[key])
                 }else{
                     preview ? reqBody.append("picture",picture) : reqBody.append("picture",existingPicture)

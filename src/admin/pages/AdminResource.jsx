@@ -1,9 +1,28 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import AdminHeader from '../components/AdminHeader'
 import AdminSidebar from '../components/AdminSidebar'
+import { userListAPI } from '../../services/allAPI'
+import axiosInstance from '../../api/axiosInstance'
+
 
 function AdminResource() {
    const [currentTab,setCurrentTab] = useState(1)
+   const [allUsers,setAllUsers] = useState([])
+   console.log(allUsers);
+
+   useEffect(()=>{
+    if(currentTab==2){
+      getAllUsers()
+    }
+   },[currentTab])
+
+   const getAllUsers = async()=>{
+    const result = await userListAPI()
+    if(result.status==200){
+      setAllUsers(result.data)
+    }
+   }
+   
   return (
     <>
       <AdminHeader/>
@@ -39,16 +58,23 @@ function AdminResource() {
             <div>
                <div className='md:grid grid-cols-3 my-5 w-full'>
                   {/* duplicating according to user */}
-                  <div className='shadow rounded p-2 m-2 bg-blue-100'>
-                    <p className='text-red-500 font-bold text-md'>ID :</p>
-                      <div className='flex mt-3 items-center'>
-                        <img width={'80px'} height={'80px'} style={{borderRadius:"50%"}} src="https://png.pngtree.com/png-clipart/20230927/original/pngtree-man-avatar-image-for-profile-png-image_13001882.png" alt="user" />
-                        <div className='flex flex-col  ml-3 w-full'>
-                          <h4 className='text-blue-600 font-bold text-md'>Username</h4>
-                          <p className=' text-xs'>Mail</p>
+                  {
+                    allUsers.length > 0 ?
+                    allUsers?.map(user=>(
+                      <div key={user._id} className='shadow rounded p-2 m-2 bg-blue-100 '>
+                        <p className='text-red-500 font-bold text-md'>ID :{user._id}</p>
+                          <div className='flex mt-3 items-center'>
+                            <img width={'80px'} height={'80px'} style={{borderRadius:"50%"}} src={user?.picture =="" ? "https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png" : user?.picture.startsWith("https://lh3.googleusercontent.com/")?user?.picture : `${axiosInstance.defaults.baseURL}/uploads/${user?.picture}`}  alt="user" />
+                            <div className='flex flex-col  ml-3 w-full'>
+                              <h4 className='text-blue-600 font-bold text-md'>{user?.username}</h4>
+                              <p className=' text-xs'>{user.email}</p>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    ))
+                    :
+                    <div></div>
+                  }
                 </div>
             </div>
         }
