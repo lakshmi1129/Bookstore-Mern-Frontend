@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
-import { addBookAPI } from '../../services/allAPI';
+import { addBookAPI, getBookDetailsAIAPI } from '../../services/allAPI';
+import useDebounce from '../../hooks/useDebounce';
 
 
 function UploadBook() {
@@ -11,8 +12,43 @@ function UploadBook() {
     })
     const [preview,setPreview] = useState("")
     const [previewList,setPreviewList] = useState([])
+    const debounceTitleSearch = useDebounce(bookDetails.title,1000)
 
-    console.log(bookDetails);
+    useEffect(()=>{
+        console.log(debounceTitleSearch);
+        
+        if(debounceTitleSearch){
+            console.log("Gemini API call");  
+            generateBookAbstractAI()         
+        }
+    },[debounceTitleSearch])
+
+
+    const generateBookAbstractAI = async () => {
+    try {
+        const result = await getBookDetailsAIAPI(debounceTitleSearch);
+        console.log("API Response:", result.data);
+            if (result.data?.content) {
+                setBookDetails({
+                    ...bookDetails,
+                    abstract: result.data.content.abstract,
+                    isbn:result.data.content.isbn,
+                    author: result.data.content.author
+                });
+            } else {
+                console.error("Abstract not found in API response:", result.data);
+            }
+        } catch (error) {
+            console.error(
+                "Error generating book abstract:",
+                error.response?.data || error.message
+            );
+        }
+    };
+
+
+
+    //  console.log(bookDetails);
 
     const handleUploadImages = (e)=>{
         const imageFile = e.target.files[0]
@@ -50,7 +86,7 @@ function UploadBook() {
             }
         }
         const result = await addBookAPI(reqBody)
-        console.log(result);
+        // console.log(result);
         if(result.status==201){
             toast.success("Book Added Successfully!!!!")
         }else{

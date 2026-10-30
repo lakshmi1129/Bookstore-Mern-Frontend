@@ -1,13 +1,17 @@
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { useEffect } from 'react'
 import { FaFacebookF, FaInstagram, FaPowerOff, FaTwitter, FaUser } from 'react-icons/fa'
 import { FaGear } from "react-icons/fa6";
 import { IoMenu } from 'react-icons/io5'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import axiosInstance from '../../api/axiosInstance'
+import { routeContext } from '../../contextAPI/RouteGaurd';
 
 
 function Header() {
+  const {role,setRole,authorisedUser,setAuthorisedUser} = useContext(routeContext)
+  
+   const navigate = useNavigate()
   const [toggle, setToggle] = useState(false)
   const [token, setToken] = useState("")
   const [dp, setDp] = useState("")
@@ -23,6 +27,17 @@ function Header() {
       setUserId(user._id)
     }
   },[token])
+
+  const logout =()=>{
+    sessionStorage.clear()
+    setAuthorisedUser(false)
+    setToggle(false)
+    setToken("")
+    setDp("")
+    setUserId("")
+    setDropDown(false)
+    navigate('/')
+  }
  
   
 
@@ -58,7 +73,7 @@ function Header() {
                   dropDown && 
                   <div className='absolute right-0 z-10 mt-2 w-40 bg-white shadow rounded ring-1 ring-black/5 p-2 focus:outline-hidden'>
                     <Link to={`/profile/${userId}`} className='flex items-center text-gray-600 text-sm px-3 py-2'><FaGear className='me-1' />Profile</Link>
-                    <button className='flex items-center text-gray-600 text-sm px-3 py-2'> <FaPowerOff className='me-1'/> Logout</button>
+                    <button onClick={logout} className='flex items-center text-gray-600 text-sm px-3 py-2'> <FaPowerOff className='me-1'/> Logout</button>
                   </div>
                 }
                </div>
@@ -83,7 +98,7 @@ function Header() {
                   dropDown && 
                   <div className='absolute right-0 z-10 mt-2 w-40 bg-white shadow rounded ring-1 ring-black/5 p-2 focus:outline-hidden'>
                     <Link to={`/profile/${userId}`} className='flex items-center text-gray-600 text-sm px-3 py-2'><FaGear className='me-1' />Profile</Link>
-                    <button className='flex items-center text-gray-600 text-sm px-3 py-2'> <FaPowerOff className='me-1'/> Logout</button>
+                    <button onClick={logout}  className='flex items-center text-gray-600 text-sm px-3 py-2'> <FaPowerOff className='me-1'/> Logout</button>
                   </div>
                 }
                </div>
